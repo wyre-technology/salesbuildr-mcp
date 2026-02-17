@@ -18,7 +18,8 @@
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "pack:mcpb": "node scripts/pack-mcpb.js"
   },
   "repository": {
     "type": "git",
