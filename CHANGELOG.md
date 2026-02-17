@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.0.0...v1.0.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* **docker:** drop arm64 platform to fix QEMU build failures ([3385293](https://github.com/wyre-technology/salesbuildr-mcp/commit/33852931ab557bcfdfda6daf1615ffb1cb036761))
+
 # 1.0.0 (2026-02-17)
 
 
