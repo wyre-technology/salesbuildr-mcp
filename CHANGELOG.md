@@ -1,3 +1,10 @@
+# 1.0.0 (2026-02-17)
+
+
+### Features
+
+* initial SalesBuildr MCP server ([551768b](https://github.com/wyre-technology/salesbuildr-mcp/commit/551768bf73bc16d1de4888cd35711cdc77ea61ee))
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
