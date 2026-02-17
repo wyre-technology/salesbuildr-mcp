@@ -1,3 +1,13 @@
+# [1.1.0](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.0.1...v1.1.0) (2026-02-17)
+
+
+### Features
+
+* add MCPB bundle to release workflow ([f6607ec](https://github.com/wyre-technology/salesbuildr-mcp/commit/f6607ec1da527ac71f0481a5aa3f47ce83e4ae2b))
+* add MCPB manifest for desktop installation ([5f643d0](https://github.com/wyre-technology/salesbuildr-mcp/commit/5f643d0fc5acc49a6bc392a08b80577fe06ef0d7))
+* add MCPB pack script ([3e622ba](https://github.com/wyre-technology/salesbuildr-mcp/commit/3e622baaff04cf6af8dc4b3552cb97cda7560b98))
+* add pack:mcpb script ([1044401](https://github.com/wyre-technology/salesbuildr-mcp/commit/1044401894e77d3ec524b368d5fade0d3e7c95bb))
+
 ## [1.0.1](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.0.0...v1.0.1) (2026-02-17)
 
 
