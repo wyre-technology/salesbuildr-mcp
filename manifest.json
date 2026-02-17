@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "salesbuildr-mcp",
+  "display_name": "SalesBuildr MCP Server",
+  "version": "0.0.0",
+  "description": "MCP server for SalesBuildr - access quotes, products, and sales workflows through AI assistants",
+  "long_description": "Provides AI assistants with structured access to your SalesBuildr data. Create and manage quotes, browse product catalogs, and streamline sales workflows through the Model Context Protocol.",
+  "author": { "name": "Wyre Technology", "url": "https://github.com/wyre-technology" },
+  "repository": { "type": "git", "url": "https://github.com/wyre-technology/salesbuildr-mcp" },
+  "homepage": "https://github.com/wyre-technology/salesbuildr-mcp",
+  "license": "Apache-2.0",
+  "keywords": ["salesbuildr", "quoting", "sales", "msp", "proposals"],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/index.js"],
+      "env": { "SALESBUILDR_API_KEY": "${user_config.salesbuildr_api_key}", "MCP_TRANSPORT": "stdio" }
+    }
+  },
+  "tools_generated": true,
+  "user_config": {
+    "salesbuildr_api_key": { "type": "string", "title": "SalesBuildr API Key", "description": "Your SalesBuildr API key", "sensitive": true, "required": true }
+  },
+  "compatibility": { "platforms": ["darwin", "win32", "linux"], "runtimes": { "node": ">=18.0.0" }, "claude_desktop": ">=0.10.0" }
+}
