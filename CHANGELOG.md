@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.1...v1.1.2) (2026-02-18)
+
+
+### Bug Fixes
+
+* **ci:** convert pack-mcpb.js to ESM imports ([0990ee1](https://github.com/wyre-technology/salesbuildr-mcp/commit/0990ee1a8a9d90b75a1036787f90ffff7a8840c9))
+
 ## [1.1.1](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.0...v1.1.1) (2026-02-18)
 
 
