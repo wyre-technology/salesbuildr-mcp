@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.0...v1.1.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* **ci:** fix release workflow failures ([b9e4e5a](https://github.com/wyre-technology/salesbuildr-mcp/commit/b9e4e5a94c8cb055fa55c614a08da2d1d5ac8c8c))
+
 # [1.1.0](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.0.1...v1.1.0) (2026-02-17)
 
 
