@@ -1,3 +1,11 @@
+## [1.1.3](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.2...v1.1.3) (2026-02-23)
+
+
+### Bug Fixes
+
+* quote MCPB bundle filename to prevent shell glob expansion failure ([a654bb1](https://github.com/wyre-technology/salesbuildr-mcp/commit/a654bb15e5f9cd41cf61f8e7246e1f4972abfae8))
+* rename duplicate step id 'version' to 'release-version' in docker job ([63472cb](https://github.com/wyre-technology/salesbuildr-mcp/commit/63472cb7e95d8f991d0178d0d56acce1df14f695))
+
 ## [1.1.2](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.1...v1.1.2) (2026-02-18)
 
 
