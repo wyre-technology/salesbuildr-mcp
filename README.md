@@ -21,6 +21,12 @@ The server uses a **decision tree** pattern:
 | **opportunities** | 4 | Sales pipeline (list, get, create, update) |
 | **quotes** | 3 | Quote management with line items (list, get, create) |
 
+## One-Click Deployment
+
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/wyre-technology/salesbuildr-mcp/tree/main)
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/wyre-technology/salesbuildr-mcp)
+
 ## Installation
 
 ```bash
