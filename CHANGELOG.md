@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.3...v1.1.4) (2026-02-25)
+
+
+### Bug Fixes
+
+* add missing node-salesbuildr dependency to Docker image ([#2](https://github.com/wyre-technology/salesbuildr-mcp/issues/2)) ([b91ea44](https://github.com/wyre-technology/salesbuildr-mcp/commit/b91ea442ec26956ea72cf6bd5bb190b7c13e08ec)), closes [#1](https://github.com/wyre-technology/salesbuildr-mcp/issues/1)
+
 ## [1.1.3](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.2...v1.1.3) (2026-02-23)
 
 
