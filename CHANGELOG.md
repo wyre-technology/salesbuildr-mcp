@@ -1,3 +1,12 @@
+## [1.1.5](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.4...v1.1.5) (2026-03-02)
+
+
+### Bug Fixes
+
+* **ci:** fix broken YAML in Discord notification step ([9b0035c](https://github.com/wyre-technology/salesbuildr-mcp/commit/9b0035c2a85bfc419d6c425fb147ed132202de5f))
+* **ci:** move Discord notification into release workflow ([91e2b28](https://github.com/wyre-technology/salesbuildr-mcp/commit/91e2b284545ebdc185906ea1a162a0c9f12e87b6))
+* support SALESBUILDR_BASE_URL for tenant-specific subdomains ([#29](https://github.com/wyre-technology/salesbuildr-mcp/issues/29)) ([3436f10](https://github.com/wyre-technology/salesbuildr-mcp/commit/3436f10cccece9a60ea479d13d759bc40583b86e))
+
 ## [Unreleased]
 
 ### Added
