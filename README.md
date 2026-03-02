@@ -40,6 +40,7 @@ npm install @wyre-technology/salesbuildr-mcp
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `SALESBUILDR_API_KEY` | Yes (env mode) | - | Your SalesBuildr API key |
+| `SALESBUILDR_BASE_URL` | No | Library default | Tenant-specific base URL (e.g. `https://mytenant.salesbuildr.com`) |
 | `MCP_TRANSPORT` | No | `stdio` | Transport type: `stdio` or `http` |
 | `MCP_HTTP_PORT` | No | `8080` | HTTP server port |
 | `MCP_HTTP_HOST` | No | `0.0.0.0` | HTTP server host |

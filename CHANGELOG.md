@@ -1,3 +1,9 @@
+## [Unreleased]
+
+### Added
+
+- `SALESBUILDR_BASE_URL` environment variable support — pass your tenant-specific subdomain URL (e.g. `https://mytenant.salesbuildr.com`) to override the library default base URL (fixes #29)
+
 ## [1.1.4](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.3...v1.1.4) (2026-02-25)
 
 

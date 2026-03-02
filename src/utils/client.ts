@@ -16,9 +16,9 @@ let _client: SalesbuildrClient | null = null;
  * Get credentials from environment variables.
  *
  * @throws Error if SALESBUILDR_API_KEY is not set
- * @returns Object containing the API key
+ * @returns Object containing the API key and optional base URL
  */
-export function getCredentials(): { apiKey: string } {
+export function getCredentials(): { apiKey: string; baseUrl?: string } {
   const apiKey = process.env.SALESBUILDR_API_KEY;
   if (!apiKey) {
     throw new Error(
@@ -26,7 +26,8 @@ export function getCredentials(): { apiKey: string } {
         "Set it to your SalesBuildr API key from your account settings."
     );
   }
-  return { apiKey };
+  const baseUrl = process.env.SALESBUILDR_BASE_URL;
+  return { apiKey, ...(baseUrl ? { baseUrl } : {}) };
 }
 
 /**
@@ -53,6 +54,7 @@ export async function getClient(): Promise<SalesbuildrClient> {
       );
       const ClientClass = mod.SalesbuildrClient as new (opts: {
         apiKey: string;
+        baseUrl?: string;
       }) => SalesbuildrClient;
       _client = new ClientClass(creds);
     } catch {
