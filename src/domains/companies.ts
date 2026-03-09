@@ -4,6 +4,7 @@
 
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { getClient } from "../utils/client.js";
+import { elicitText } from "../utils/elicitation.js";
 
 /**
  * Company domain tool definitions
@@ -185,6 +186,17 @@ export async function handleCompanyTool(
         from?: number;
         size?: number;
       };
+
+      // If no search filter provided, ask the user for a search term
+      if (!params.query && params.from === undefined) {
+        const searchTerm = await elicitText(
+          "Would you like to search for a specific company? Enter a name or domain, or leave blank to list all.",
+          "searchTerm",
+          "Enter a company name or domain to search for"
+        );
+        if (searchTerm) params.query = searchTerm;
+      }
+
       const result = await client.companies.list({
         query: params.query,
         from: params.from,
