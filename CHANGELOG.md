@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.5...v1.2.0) (2026-03-10)
+
+
+### Features
+
+* **elicitation:** add MCP elicitation support with graceful fallback ([1fb17f0](https://github.com/wyre-technology/salesbuildr-mcp/commit/1fb17f07024c8ecce71954300001465d50596bcf))
+
 ## [1.1.5](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.4...v1.1.5) (2026-03-02)
 
 
