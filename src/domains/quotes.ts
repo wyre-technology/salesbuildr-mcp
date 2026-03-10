@@ -4,6 +4,7 @@
 
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { getClient } from "../utils/client.js";
+import { elicitText } from "../utils/elicitation.js";
 
 /**
  * Quote domain tool definitions
@@ -174,6 +175,33 @@ export async function handleQuoteTool(
 
     case "salesbuildr_quotes_create": {
       const { id: _id, ...data } = args as Record<string, unknown>;
+
+      // If no company specified, ask the user for one
+      if (!data.companyId) {
+        const companyName = await elicitText(
+          "Which company is this quote for? Enter a company name to search for.",
+          "companyName",
+          "Enter the company name"
+        );
+        if (companyName) {
+          // Search for the company and let the user see results
+          const searchResult = await client.companies.list({ query: companyName, size: 5 });
+          const companies = (searchResult as { data?: Array<{ id: string; name: string }> })?.data;
+          if (companies && companies.length === 1) {
+            data.companyId = companies[0].id;
+          } else if (companies && companies.length > 1) {
+            // Import dynamically to avoid unused import when not needed
+            const { elicitSelection } = await import("../utils/elicitation.js");
+            const selected = await elicitSelection(
+              "Multiple companies found. Please select one:",
+              "company",
+              companies.map((c) => ({ value: c.id, label: c.name }))
+            );
+            if (selected) data.companyId = selected;
+          }
+        }
+      }
+
       const quote = await client.quotes.create(data);
       return {
         content: [{ type: "text", text: JSON.stringify(quote, null, 2) }],
