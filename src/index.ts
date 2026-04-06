@@ -12,7 +12,6 @@
  */
 
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
-import { randomUUID } from "node:crypto";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -72,10 +71,6 @@ const domainDescriptions: Record<Domain, string> = {
 interface ServerState {
   currentDomain: Domain | null;
 }
-
-const state: ServerState = {
-  currentDomain: null,
-};
 
 /**
  * Get tools for a specific domain
@@ -140,120 +135,130 @@ const backTool: Tool = {
 };
 
 /**
- * Create the MCP server
+ * Create a fresh MCP server instance with all handlers registered.
+ * Called once for stdio, or per-request for HTTP transport.
  */
-const server = new Server(
-  {
-    name: "salesbuildr-mcp",
-    version: "1.0.0",
-  },
-  {
-    capabilities: {
-      tools: {},
+function createMcpServer(): Server {
+  const state: ServerState = {
+    currentDomain: null,
+  };
+
+  const server = new Server(
+    {
+      name: "salesbuildr-mcp",
+      version: "1.0.0",
     },
-  }
-);
+    {
+      capabilities: {
+        tools: {},
+      },
+    }
+  );
 
-setServerRef(server);
+  setServerRef(server);
 
-/**
- * Handle ListTools requests - returns tools based on current state
- */
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  const tools: Tool[] = [];
+  /**
+   * Handle ListTools requests - returns tools based on current state
+   */
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    const tools: Tool[] = [];
 
-  if (state.currentDomain === null) {
-    // At root - show navigation tool only
-    tools.push(navigateTool);
-  } else {
-    // In a domain - show domain tools plus back navigation
-    tools.push(backTool);
-    tools.push(...getDomainTools(state.currentDomain));
-  }
+    if (state.currentDomain === null) {
+      // At root - show navigation tool only
+      tools.push(navigateTool);
+    } else {
+      // In a domain - show domain tools plus back navigation
+      tools.push(backTool);
+      tools.push(...getDomainTools(state.currentDomain));
+    }
 
-  return { tools };
-});
+    return { tools };
+  });
 
-/**
- * Handle CallTool requests
- */
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
+  /**
+   * Handle CallTool requests
+   */
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args } = request.params;
 
-  try {
-    // Handle navigation
-    if (name === "salesbuildr_navigate") {
-      const { domain } = args as { domain: Domain };
-      state.currentDomain = domain;
+    try {
+      // Handle navigation
+      if (name === "salesbuildr_navigate") {
+        const { domain } = args as { domain: Domain };
+        state.currentDomain = domain;
 
-      const domainTools = getDomainTools(domain);
-      const toolNames = domainTools.map((t) => t.name).join(", ");
+        const domainTools = getDomainTools(domain);
+        const toolNames = domainTools.map((t) => t.name).join(", ");
 
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Navigated to ${domain} domain. Available tools: ${toolNames}`,
+            },
+          ],
+        };
+      }
+
+      // Handle back navigation
+      if (name === "salesbuildr_back") {
+        state.currentDomain = null;
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Returned to domain selection. Use salesbuildr_navigate to select a domain: companies, contacts, products, opportunities, quotes",
+            },
+          ],
+        };
+      }
+
+      // Route to appropriate domain handler
+      const toolArgs = (args ?? {}) as Record<string, unknown>;
+
+      if (name.startsWith("salesbuildr_companies_")) {
+        return await handleCompanyTool(name, toolArgs);
+      }
+      if (name.startsWith("salesbuildr_contacts_")) {
+        return await handleContactTool(name, toolArgs);
+      }
+      if (name.startsWith("salesbuildr_products_")) {
+        return await handleProductTool(name, toolArgs);
+      }
+      if (name.startsWith("salesbuildr_opportunities_")) {
+        return await handleOpportunityTool(name, toolArgs);
+      }
+      if (name.startsWith("salesbuildr_quotes_")) {
+        return await handleQuoteTool(name, toolArgs);
+      }
+
+      // Unknown tool
       return {
         content: [
           {
             type: "text",
-            text: `Navigated to ${domain} domain. Available tools: ${toolNames}`,
+            text: `Unknown tool: ${name}. Use salesbuildr_navigate to select a domain first.`,
           },
         ],
+        isError: true,
       };
-    }
-
-    // Handle back navigation
-    if (name === "salesbuildr_back") {
-      state.currentDomain = null;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       return {
-        content: [
-          {
-            type: "text",
-            text: "Returned to domain selection. Use salesbuildr_navigate to select a domain: companies, contacts, products, opportunities, quotes",
-          },
-        ],
+        content: [{ type: "text", text: `Error: ${message}` }],
+        isError: true,
       };
     }
+  });
 
-    // Route to appropriate domain handler
-    const toolArgs = (args ?? {}) as Record<string, unknown>;
-
-    if (name.startsWith("salesbuildr_companies_")) {
-      return await handleCompanyTool(name, toolArgs);
-    }
-    if (name.startsWith("salesbuildr_contacts_")) {
-      return await handleContactTool(name, toolArgs);
-    }
-    if (name.startsWith("salesbuildr_products_")) {
-      return await handleProductTool(name, toolArgs);
-    }
-    if (name.startsWith("salesbuildr_opportunities_")) {
-      return await handleOpportunityTool(name, toolArgs);
-    }
-    if (name.startsWith("salesbuildr_quotes_")) {
-      return await handleQuoteTool(name, toolArgs);
-    }
-
-    // Unknown tool
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Unknown tool: ${name}. Use salesbuildr_navigate to select a domain first.`,
-        },
-      ],
-      isError: true,
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      content: [{ type: "text", text: `Error: ${message}` }],
-      isError: true,
-    };
-  }
-});
+  return server;
+}
 
 /**
  * Start the server with stdio transport (default)
  */
 async function startStdioTransport(): Promise<void> {
+  const server = createMcpServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("SalesBuildr MCP server running on stdio");
@@ -261,18 +266,14 @@ async function startStdioTransport(): Promise<void> {
 
 /**
  * Start the server with HTTP Streamable transport
- * In gateway mode, credentials are extracted from request headers on each request
+ * In gateway mode, credentials are extracted from request headers on each request.
+ * Each request gets a fresh Server + Transport (stateless).
  */
 async function startHttpTransport(): Promise<void> {
   const port = parseInt(process.env.MCP_HTTP_PORT || "8080", 10);
   const host = process.env.MCP_HTTP_HOST || "0.0.0.0";
   const authMode = (process.env.AUTH_MODE as AuthMode) || "env";
   const isGatewayMode = authMode === "gateway";
-
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: () => randomUUID(),
-    enableJsonResponse: true,
-  });
 
   const httpServer = createServer(
     (req: IncomingMessage, res: ServerResponse) => {
@@ -312,7 +313,21 @@ async function startHttpTransport(): Promise<void> {
           }
         }
 
-        transport.handleRequest(req, res);
+        // Create fresh server + transport per request (stateless)
+        const server = createMcpServer();
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: undefined,
+          enableJsonResponse: true,
+        });
+
+        res.on("close", () => {
+          transport.close();
+          server.close();
+        });
+
+        server.connect(transport).then(() => {
+          transport.handleRequest(req, res);
+        });
         return;
       }
 
@@ -326,8 +341,6 @@ async function startHttpTransport(): Promise<void> {
       );
     }
   );
-
-  await server.connect(transport);
 
   await new Promise<void>((resolve) => {
     httpServer.listen(port, host, () => {
@@ -350,7 +363,6 @@ async function startHttpTransport(): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       httpServer.close((err) => (err ? reject(err) : resolve()));
     });
-    await server.close();
     process.exit(0);
   };
 
