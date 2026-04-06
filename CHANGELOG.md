@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.2.1...v1.2.2) (2026-04-06)
+
+
+### Bug Fixes
+
+* per-request MCP Server+Transport for gateway compatibility ([f072b09](https://github.com/wyre-technology/salesbuildr-mcp/commit/f072b098577cad5945d405164a0e35a97154d2dc))
+
 ## [1.2.1](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.2.0...v1.2.1) (2026-04-06)
 
 
