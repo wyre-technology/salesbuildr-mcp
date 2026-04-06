@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.2.0...v1.2.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* allow unauthenticated tools/list in gateway mode ([f4e7d4b](https://github.com/wyre-technology/salesbuildr-mcp/commit/f4e7d4b9a1aa9de5e7d15eac0ad70f9ea906dff3))
+
 # [1.2.0](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.1.5...v1.2.0) (2026-03-10)
 
 
