@@ -297,31 +297,19 @@ async function startHttpTransport(): Promise<void> {
 
       // MCP endpoint
       if (url.pathname === "/mcp") {
-        // In gateway mode, extract credentials from headers
+        // In gateway mode, set credentials if provided but don't reject
+        // requests without them. tools/list and initialize don't need
+        // credentials; tools/call will fail with a clear error if
+        // credentials are missing when the API client is created.
         if (isGatewayMode) {
           const apiKey = req.headers["x-salesbuildr-api-key"] as
             | string
             | undefined;
 
-          if (!apiKey) {
-            console.error(
-              "Gateway mode: Missing x-salesbuildr-api-key header"
-            );
-            res.writeHead(401, { "Content-Type": "application/json" });
-            res.end(
-              JSON.stringify({
-                error: "Missing credentials",
-                message:
-                  "Gateway mode requires X-Salesbuildr-API-Key header",
-                required: ["X-Salesbuildr-API-Key"],
-              })
-            );
-            return;
+          if (apiKey) {
+            resetClient();
+            process.env.SALESBUILDR_API_KEY = apiKey;
           }
-
-          // Reset client so next getClient() picks up the new key
-          resetClient();
-          process.env.SALESBUILDR_API_KEY = apiKey;
         }
 
         transport.handleRequest(req, res);
