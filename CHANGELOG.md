@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.2.2...v1.2.3) (2026-04-07)
+
+
+### Bug Fixes
+
+* **ci:** deploy :latest tag, force revision via env var bump ([3998795](https://github.com/wyre-technology/salesbuildr-mcp/commit/3998795b9550e2f912a353ef0454bcd566c3ed1c))
+
 ## [1.2.2](https://github.com/wyre-technology/salesbuildr-mcp/compare/v1.2.1...v1.2.2) (2026-04-06)
 
 
