@@ -9,16 +9,25 @@
  */
 
 import type { SalesbuildrClient } from "./types.js";
+import { getRequestCredentials } from "./credential-store.js";
 
 let _client: SalesbuildrClient | null = null;
 
 /**
- * Get credentials from environment variables.
+ * Get credentials from the per-request store (gateway mode) or
+ * environment variables (stdio / env mode).
  *
- * @throws Error if SALESBUILDR_API_KEY is not set
+ * @throws Error if no API key is available from either source
  * @returns Object containing the API key and optional base URL
  */
 export function getCredentials(): { apiKey: string; baseUrl?: string } {
+  // Per-request credentials take priority (gateway HTTP mode)
+  const reqCreds = getRequestCredentials();
+  if (reqCreds) {
+    return reqCreds;
+  }
+
+  // Fall back to environment variables (stdio or env-mode HTTP)
   const apiKey = process.env.SALESBUILDR_API_KEY;
   if (!apiKey) {
     throw new Error(

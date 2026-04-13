@@ -32,6 +32,7 @@ import {
 import { quoteTools, handleQuoteTool } from "./domains/quotes.js";
 import { resetClient } from "./utils/client.js";
 import { setServerRef } from "./utils/server-ref.js";
+import { credentialStore } from "./utils/credential-store.js";
 
 /**
  * Transport and auth configuration types
@@ -298,36 +299,36 @@ async function startHttpTransport(): Promise<void> {
 
       // MCP endpoint
       if (url.pathname === "/mcp") {
-        // In gateway mode, set credentials if provided but don't reject
-        // requests without them. tools/list and initialize don't need
-        // credentials; tools/call will fail with a clear error if
-        // credentials are missing when the API client is created.
-        if (isGatewayMode) {
-          const apiKey = req.headers["x-salesbuildr-api-key"] as
-            | string
-            | undefined;
+        // Extract per-request credentials from headers (gateway mode).
+        // Credentials are stored in AsyncLocalStorage so concurrent
+        // requests are isolated — no process.env mutation.
+        const apiKey = isGatewayMode
+          ? (req.headers["x-salesbuildr-api-key"] as string | undefined)
+          : undefined;
 
-          if (apiKey) {
-            resetClient();
-            process.env.SALESBUILDR_API_KEY = apiKey;
-          }
+        const handleMcp = () => {
+          resetClient();
+          const server = createMcpServer();
+          const transport = new StreamableHTTPServerTransport({
+            sessionIdGenerator: undefined,
+            enableJsonResponse: true,
+          });
+
+          res.on("close", () => {
+            transport.close();
+            server.close();
+          });
+
+          server.connect(transport).then(() => {
+            transport.handleRequest(req, res);
+          });
+        };
+
+        if (apiKey) {
+          credentialStore.run({ apiKey }, handleMcp);
+        } else {
+          handleMcp();
         }
-
-        // Create fresh server + transport per request (stateless)
-        const server = createMcpServer();
-        const transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: undefined,
-          enableJsonResponse: true,
-        });
-
-        res.on("close", () => {
-          transport.close();
-          server.close();
-        });
-
-        server.connect(transport).then(() => {
-          transport.handleRequest(req, res);
-        });
         return;
       }
 
