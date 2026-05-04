@@ -136,7 +136,16 @@ export const contactTools: Tool[] = [
   {
     name: "salesbuildr_contacts_delete",
     description:
-      "Delete a contact from SalesBuildr by their ID. This action cannot be undone.",
+      "⚠ DESTRUCTIVE — IRREVERSIBLE. Permanently deletes a contact from SalesBuildr and all of their " +
+      "associated data. This action cannot be undone. " +
+      "Confirm with the user before invoking.",
+    annotations: {
+      title: "Delete contact (irreversible)",
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
     inputSchema: {
       type: "object",
       properties: {
