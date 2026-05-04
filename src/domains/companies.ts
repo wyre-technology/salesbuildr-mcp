@@ -156,7 +156,16 @@ export const companyTools: Tool[] = [
   {
     name: "salesbuildr_companies_delete",
     description:
-      "Delete a company from SalesBuildr by its ID. This action cannot be undone.",
+      "⚠ DESTRUCTIVE — IRREVERSIBLE. Permanently deletes a company from SalesBuildr and all of its " +
+      "associated data. This action cannot be undone. " +
+      "Confirm with the user before invoking.",
+    annotations: {
+      title: "Delete company (irreversible)",
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
     inputSchema: {
       type: "object",
       properties: {

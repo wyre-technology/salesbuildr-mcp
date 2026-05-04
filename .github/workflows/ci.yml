@@ -34,6 +34,9 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: Lint destructive tool warnings
+        run: node scripts/lint-destructive-warnings.mjs src
+
       - name: Test
         run: npm test
 
