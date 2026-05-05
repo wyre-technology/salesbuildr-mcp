@@ -3,10 +3,15 @@
  * SalesBuildr MCP Server
  *
  * This MCP server provides tools for interacting with the SalesBuildr API.
- * It implements a decision tree architecture where tools are dynamically
- * loaded based on the selected domain.
+ * All tools are listed upfront so they work with every MCP client, including
+ * remote connectors (claude.ai, mcp-remote) that do not support dynamic
+ * tool-list changes. A helper `salesbuildr_navigate` tool provides domain
+ * discovery and guidance.
  *
- * Supports both stdio and HTTP (StreamableHTTP) transports.
+ * Supports both stdio and HTTP transports:
+ * - stdio: default, for local CLI usage
+ * - http: set MCP_TRANSPORT=http for hosted/gateway deployments
+ *
  * Authentication: Set SALESBUILDR_API_KEY environment variable (env mode)
  *                 or pass x-salesbuildr-api-key header (gateway mode)
  */
@@ -67,11 +72,9 @@ const domainDescriptions: Record<Domain, string> = {
 };
 
 /**
- * Server state management
+ * All domain tools, collected once at startup
  */
-interface ServerState {
-  currentDomain: Domain | null;
-}
+let allDomainTools: Tool[] | null = null;
 
 /**
  * Get tools for a specific domain
@@ -92,12 +95,42 @@ function getDomainTools(domain: Domain): Tool[] {
 }
 
 /**
- * Navigation tool - entry point for decision tree
+ * Load all domain tools (lazy-loaded on first access)
+ */
+function getAllDomainTools(): Tool[] {
+  if (allDomainTools !== null) {
+    return allDomainTools;
+  }
+
+  const domains: Domain[] = [
+    "companies",
+    "contacts",
+    "products",
+    "opportunities",
+    "quotes"
+  ];
+  const tools: Tool[] = [];
+
+  for (const domain of domains) {
+    tools.push(...getDomainTools(domain));
+  }
+
+  allDomainTools = tools;
+  return tools;
+}
+
+/**
+ * Navigation / discovery tool - helps the LLM find the right tools
+ *
+ * This is a stateless helper that describes available tools for a domain.
+ * All domain tools are always listed in tools/list regardless of navigation
+ * state, because many MCP clients (claude.ai connectors, mcp-remote) only
+ * fetch the tool list once and do not support notifications/tools/list_changed.
  */
 const navigateTool: Tool = {
   name: "salesbuildr_navigate",
   description:
-    "Navigate to a specific domain in SalesBuildr. Call this first to select which area you want to work with. After navigation, domain-specific tools will be available.",
+    "Discover available SalesBuildr tools by domain. Returns tool names and descriptions for the selected domain. All tools are callable at any time — this is a help/discovery aid, not a prerequisite.",
   inputSchema: {
     type: "object",
     properties: {
@@ -110,7 +143,7 @@ const navigateTool: Tool = {
           "opportunities",
           "quotes",
         ],
-        description: `The domain to navigate to:
+        description: `The domain to explore:
 - companies: ${domainDescriptions.companies}
 - contacts: ${domainDescriptions.contacts}
 - products: ${domainDescriptions.products}
@@ -123,12 +156,11 @@ const navigateTool: Tool = {
 };
 
 /**
- * Back navigation tool - return to domain selection
+ * Status tool - shows credentials status and available domains
  */
-const backTool: Tool = {
-  name: "salesbuildr_back",
-  description:
-    "Return to domain selection. Use this to switch to a different area of SalesBuildr.",
+const statusTool: Tool = {
+  name: "salesbuildr_status",
+  description: "Show credentials status and available domains",
   inputSchema: {
     type: "object",
     properties: {},
@@ -140,9 +172,6 @@ const backTool: Tool = {
  * Called once for stdio, or per-request for HTTP transport.
  */
 function createMcpServer(): Server {
-  const state: ServerState = {
-    currentDomain: null,
-  };
 
   const server = new Server(
     {
@@ -159,21 +188,11 @@ function createMcpServer(): Server {
   setServerRef(server);
 
   /**
-   * Handle ListTools requests - returns tools based on current state
+   * Handle ListTools requests - always returns ALL tools
    */
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    const tools: Tool[] = [];
-
-    if (state.currentDomain === null) {
-      // At root - show navigation tool only
-      tools.push(navigateTool);
-    } else {
-      // In a domain - show domain tools plus back navigation
-      tools.push(backTool);
-      tools.push(...getDomainTools(state.currentDomain));
-    }
-
-    return { tools };
+    const domainTools = getAllDomainTools();
+    return { tools: [navigateTool, statusTool, ...domainTools] };
   });
 
   /**
@@ -183,32 +202,31 @@ function createMcpServer(): Server {
     const { name, arguments: args } = request.params;
 
     try {
-      // Handle navigation
+      // Handle navigation / discovery helper
       if (name === "salesbuildr_navigate") {
         const { domain } = args as { domain: Domain };
-        state.currentDomain = domain;
 
         const domainTools = getDomainTools(domain);
-        const toolNames = domainTools.map((t) => t.name).join(", ");
+        const toolSummary = domainTools
+          .map((t) => `- ${t.name}: ${t.description}`)
+          .join("\n");
 
         return {
           content: [
             {
               type: "text",
-              text: `Navigated to ${domain} domain. Available tools: ${toolNames}`,
+              text: `${domainDescriptions[domain]}\n\nAvailable tools:\n${toolSummary}\n\nYou can call any of these tools directly.`,
             },
           ],
         };
       }
 
-      // Handle back navigation
-      if (name === "salesbuildr_back") {
-        state.currentDomain = null;
+      if (name === "salesbuildr_status") {
         return {
           content: [
             {
               type: "text",
-              text: "Returned to domain selection. Use salesbuildr_navigate to select a domain: companies, contacts, products, opportunities, quotes",
+              text: `SalesBuildr MCP Server Status\n\nAvailable domains: companies, contacts, products, opportunities, quotes\n\nAll tools are available at all times. Use salesbuildr_navigate to discover tools by domain.`,
             },
           ],
         };
@@ -238,7 +256,7 @@ function createMcpServer(): Server {
         content: [
           {
             type: "text",
-            text: `Unknown tool: ${name}. Use salesbuildr_navigate to select a domain first.`,
+            text: `Unknown tool: ${name}. Use salesbuildr_navigate to discover available tools by domain.`,
           },
         ],
         isError: true,
