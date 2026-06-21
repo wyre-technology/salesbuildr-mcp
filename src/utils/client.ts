@@ -56,7 +56,6 @@ export async function getClient(): Promise<SalesbuildrClient> {
 
     try {
       // Dynamic import so TypeScript does not error when the package is absent
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const packageName = "@wyre-technology/node-salesbuildr";
       const mod: Record<string, unknown> = await import(
         /* webpackIgnore: true */ packageName
