@@ -33,6 +33,7 @@ import {
 } from "./domains/opportunities.js";
 import { quoteTools, handleQuoteTool } from "./domains/quotes.js";
 import { setServerRef } from "./utils/server-ref.js";
+import { registerResourceHandlers } from "./resources.js";
 
 /**
  * Available domains for navigation
@@ -165,11 +166,13 @@ export function createMcpServer(): Server {
     {
       capabilities: {
         tools: {},
+        resources: {},
       },
     }
   );
 
   setServerRef(server);
+  registerResourceHandlers(server);
 
   /**
    * Handle ListTools requests - always returns ALL tools

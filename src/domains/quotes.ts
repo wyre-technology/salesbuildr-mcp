@@ -5,6 +5,7 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { getClient } from "../utils/client.js";
 import { elicitText } from "../utils/elicitation.js";
+import { buildQuoteCard, QUOTE_CARD_META } from "../card.builder.js";
 
 /**
  * Quote domain tool definitions
@@ -44,6 +45,7 @@ export const quoteTools: Tool[] = [
     name: "salesbuildr_quotes_get",
     description:
       "Get detailed information about a specific quote by its ID. Returns full quote details including line items, pricing, and status.",
+    _meta: QUOTE_CARD_META,
     inputSchema: {
       type: "object",
       properties: {
@@ -168,8 +170,15 @@ export async function handleQuoteTool(
     case "salesbuildr_quotes_get": {
       const { id } = args as { id: string };
       const quote = await client.quotes.get(id);
+      const payload: Record<string, unknown> = { ...quote };
+
+      // MCP Apps: attach the normalized card payload the ui:// quote card
+      // renders from. Best-effort — a null card just means no UI surface.
+      const card = await buildQuoteCard(payload, client);
+      if (card) payload._card = card;
+
       return {
-        content: [{ type: "text", text: JSON.stringify(quote, null, 2) }],
+        content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
       };
     }
 

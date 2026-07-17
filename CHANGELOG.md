@@ -1,5 +1,34 @@
 ## [Unreleased]
 
+### Added
+
+- **Interactive quote card via MCP Apps (SEP-1865).** `salesbuildr_quotes_get` results now
+  render as an interactive, read-only card in MCP Apps hosts (Claude Desktop/web, and other
+  hosts advertising the `io.modelcontextprotocol/ui` extension) — quote title, status,
+  company/contact names, created/expiry dates, line items, and totals. Non-App hosts are
+  unaffected: the tool's JSON payload is unchanged apart from a new `_card` field.
+  - The card is **brand-neutral by default** (system fonts, neutral palette, no baked-in
+    identity — this is a published server) and brandable without rebuilding:
+    `MCP_BRAND_NAME`, `MCP_BRAND_LOGO_URL`, `MCP_BRAND_PRIMARY_COLOR`,
+    `MCP_BRAND_ACCENT_COLOR`, `MCP_BRAND_BG`, and `MCP_BRAND_TEXT` env vars are injected
+    as `window.__BRAND__` at serve time (a gateway can inject the same object per-org).
+    A test pins the default bundle to zero brand identity and zero external font fetches.
+  - The renderable tool advertises the UI via `_meta` (`ui/resourceUri`, plus the nested
+    `ui.resourceUri` form) pointing at a new `ui://salesbuildr/quote-card.html` resource
+    served as `text/html;profile=mcp-app` (the server now declares the `resources`
+    capability). The card HTML is a self-contained vite single-file bundle embedded at
+    build time (`src/generated/quote-card-html.ts`, committed), so it serves identically
+    from stdio, Node HTTP, and the fs-less Cloudflare Workers runtime.
+  - The card payload builder (`src/card.builder.ts`) is best-effort: a missing company
+    name is resolved with one existing `companies.get` lookup, lookup failures fall back
+    to `#id` labels, and a non-renderable payload just drops the card without affecting
+    the tool result. Contract tests in `src/__tests__/mcp-apps.test.ts` pin the `_meta`
+    advertisement, the `ui://` resource wire shape, card normalization, brand neutrality,
+    and injection escaping.
+  - New `npm run build:ui` regenerates the embedded HTML after editing `ui/` (requires
+    the new `vite`, `vite-plugin-singlefile`, and `@modelcontextprotocol/ext-apps`
+    devDependencies); plain `npm run build` and CI are unaffected.
+
 ### Fixed
 
 - One-click cloud deploys (Cloudflare Workers, DigitalOcean) no longer fail with
