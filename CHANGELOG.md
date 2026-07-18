@@ -31,6 +31,13 @@
 
 ### Fixed
 
+- Upgraded `@wyre-technology/node-salesbuildr` to `^1.0.2`, inheriting the SDK's
+  single-read HTTP response fix: response bodies are now read exactly once, so failed
+  API calls surface descriptive error messages instead of being swallowed as empty `{}`
+  bodies. See the
+  [node-salesbuildr v1.0.2 release](https://github.com/wyre-technology/node-salesbuildr/releases/tag/v1.0.2);
+  the pattern was originally identified in
+  [connectwise-automate-mcp#54](https://github.com/wyre-technology/connectwise-automate-mcp/issues/54).
 - One-click cloud deploys (Cloudflare Workers, DigitalOcean) no longer fail with
   `npm error 401 Unauthorized` from `npm.pkg.github.com`. The `.npmrc` now carries the
   GitHub Packages auth-token line (`${NODE_AUTH_TOKEN}`) so operators can supply their own
