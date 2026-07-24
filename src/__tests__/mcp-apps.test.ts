@@ -24,7 +24,6 @@ import { QUOTE_CARD_HTML } from "../generated/quote-card-html.js";
 const RENDERABLE_TOOLS = ["salesbuildr_quotes_get"];
 
 // Mock the client utility so handleQuoteTool tests run without credentials.
-// worker.ts only needs resetClient from this module for the wire-level tests.
 const mockClient = {
   quotes: { list: vi.fn(), get: vi.fn(), create: vi.fn() },
   companies: { get: vi.fn() },
@@ -33,7 +32,6 @@ const mockClient = {
 vi.mock("../utils/client.js", () => ({
   getClient: vi.fn(),
   getCredentials: vi.fn(),
-  resetClient: vi.fn(),
 }));
 
 const MCP_HEADERS = {

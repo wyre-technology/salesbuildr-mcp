@@ -11,9 +11,10 @@
  *
  * Per-request credential isolation is handled by the caller via the
  * AsyncLocalStorage-backed `credentialStore` (see `utils/credential-store.ts`):
- * wrap each request in `credentialStore.run({ apiKey }, fn)` and call
- * `resetClient()` first so the lazily-created client picks up that request's
- * credentials.
+ * wrap each request in `credentialStore.run({ apiKey }, fn)`. `utils/client.ts`'s
+ * `getClient()` reads that same store directly and builds a fresh, uncached
+ * client per request when it's populated, so there is no reset step needed
+ * between requests.
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
