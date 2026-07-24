@@ -18,11 +18,15 @@
  * the Node HTTP transport uses (nodejs_compat provides node:async_hooks on
  * workerd). `tools/list` and `initialize` work without credentials; only
  * `tools/call` requires them.
+ *
+ * The client returned by `utils/client.ts`'s `getClient()` reads the same
+ * AsyncLocalStorage store directly and builds a fresh, uncached client per
+ * request when it's populated — there is no module-level client cache to
+ * reset between requests here.
  */
 
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createMcpServer } from "./mcp-server.js";
-import { resetClient } from "./utils/client.js";
 import {
   credentialStore,
   type RequestCredentials,
@@ -57,12 +61,12 @@ function withCors(res: Response): Response {
 }
 
 /**
- * Run the MCP request through a fresh server + Web Standard transport,
- * resetting the lazily-created client first so it picks up the credentials
- * active in the current AsyncLocalStorage scope (if any).
+ * Run the MCP request through a fresh server + Web Standard transport.
+ * getClient() (see utils/client.ts) reads the AsyncLocalStorage scope this
+ * request runs in directly, so credentials/client are always request-scoped
+ * with no reset step needed here.
  */
 async function handleMcp(request: Request): Promise<Response> {
-  resetClient();
   const server = createMcpServer();
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,

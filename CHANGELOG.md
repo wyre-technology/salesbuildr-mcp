@@ -1,5 +1,38 @@
 ## [Unreleased]
 
+### Security
+
+- **Fixed a cross-tenant credential leak in gateway mode.** `getClient()` in
+  `src/utils/client.ts` cached the constructed vendor client in a
+  module-level `_client` singleton regardless of whether the credentials
+  came from the per-request `AsyncLocalStorage`-backed `credentialStore`
+  (gateway mode) or `process.env` (stdio/env mode). Callers (`worker.ts`,
+  `index.ts`) called `resetClient()` at the *start* of each HTTP request
+  handler, before `server.connect()` / `transport.handleRequest()` ever
+  awaited anything. That reset-at-request-start did not prevent overlap:
+  under concurrent requests, whichever tenant's request reached
+  `getClient()` first populated the shared singleton, and any other
+  tenant's request still in flight read that same cached instance instead
+  of building its own — moving the reset earlier just moved the race
+  window, it didn't close it. Fixed by making `getClient()` build a fresh,
+  uncached client directly from the request-scoped credentials whenever
+  they're present, so it never reads from or writes to the singleton. The
+  `_client` singleton itself is now used only for the stdio/env-mode path,
+  where credentials come from `process.env` and are fixed for the lifetime
+  of the process (a single tenant, nothing to race). The
+  reset-at-request-start calls in `worker.ts` and `index.ts` were removed —
+  there is no longer anything request-scoped to reset. Also switched
+  `client.ts`'s SDK import from a dynamic `await import()` to a static
+  top-level import: a dynamic import of a module that is also
+  `vi.mock()`-intercepted can race under concurrent test execution and
+  resolve to the real, un-mocked SDK for one of the concurrent calls (a
+  test-only concern — Node's real dynamic `import()` is cache-deduped in
+  production). New regression tests in `src/__tests__/client.test.ts` and
+  `src/__tests__/gateway-concurrency.test.ts` force a deterministic
+  interleave via a manually-resolved deferred promise (not a timer) and
+  assert on the actual per-tenant credential/client values, not just object
+  identity.
+
 ### Added
 
 - **Interactive quote card via MCP Apps (SEP-1865).** `salesbuildr_quotes_get` results now

@@ -23,7 +23,6 @@ import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createMcpServer } from "./mcp-server.js";
-import { resetClient } from "./utils/client.js";
 import { credentialStore } from "./utils/credential-store.js";
 
 /**
@@ -84,7 +83,6 @@ async function startHttpTransport(): Promise<void> {
           : undefined;
 
         const handleMcp = () => {
-          resetClient();
           const server = createMcpServer();
           const transport = new StreamableHTTPServerTransport({
             sessionIdGenerator: undefined,
