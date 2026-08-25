@@ -50,9 +50,9 @@ or `MCP_BRAND_*` env vars (`MCP_BRAND_NAME`, `MCP_BRAND_LOGO_URL`,
 >    - **DigitalOcean App Platform** → set an encrypted env var named **`GITHUB_TOKEN`**
 >      with scope **Build Time** to your PAT (the Dockerfile reads it for the install).
 
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/wyre-technology/salesbuildr-mcp/tree/main)
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/WYRE-AI/salesbuildr-mcp/tree/main)
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/wyre-technology/salesbuildr-mcp)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/WYRE-AI/salesbuildr-mcp)
 
 ## Installation
 
@@ -63,7 +63,7 @@ token even for public packages. Authenticate once, then install:
 # Authenticate npm to GitHub Packages (token needs the read:packages scope)
 export NODE_AUTH_TOKEN=$(gh auth token)   # or a PAT with read:packages
 
-npm install @wyre-technology/salesbuildr-mcp
+npm install @wyre-ai/salesbuildr-mcp
 ```
 
 The repo's `.npmrc` already points the `@wyre-technology` scope at GitHub Packages and
@@ -91,7 +91,7 @@ Add to your Claude Desktop config (`claude_desktop_config.json`):
   "mcpServers": {
     "salesbuildr": {
       "command": "npx",
-      "args": ["@wyre-technology/salesbuildr-mcp"],
+      "args": ["@wyre-ai/salesbuildr-mcp"],
       "env": {
         "SALESBUILDR_API_KEY": "your-api-key"
       }
@@ -118,7 +118,7 @@ X-Salesbuildr-API-Key: your-api-key
 docker run -d \
   -p 8080:8080 \
   -e SALESBUILDR_API_KEY=your-api-key \
-  ghcr.io/wyre-technology/salesbuildr-mcp:latest
+  ghcr.io/wyre-ai/salesbuildr-mcp:latest
 ```
 
 ## Development
