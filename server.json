@@ -1,18 +1,18 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.wyre-technology/salesbuildr-mcp",
+  "name": "io.github.WYRE-AI/salesbuildr-mcp",
   "title": "SalesBuildr",
   "description": "MCP server for SalesBuildr — quoting and sales workflows for MSPs.",
   "repository": {
-    "url": "https://github.com/wyre-technology/salesbuildr-mcp",
+    "url": "https://github.com/WYRE-AI/salesbuildr-mcp",
     "source": "github"
   },
   "version": "0.0.0",
-  "websiteUrl": "https://github.com/wyre-technology/salesbuildr-mcp",
+  "websiteUrl": "https://github.com/WYRE-AI/salesbuildr-mcp",
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/wyre-technology/salesbuildr-mcp:0.0.0",
+      "identifier": "ghcr.io/wyre-ai/salesbuildr-mcp:0.0.0",
       "transport": {
         "type": "stdio"
       },
